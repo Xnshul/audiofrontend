@@ -129,7 +129,7 @@ const AudioRecorder = ({ onUploadSuccess }) => {
     formData.append('title', title);
     formData.append('audio', blob, 'recording.webm');
 
-    await axios.post('https://audiobackend.onrender.com/api/audio', formData);
+    await axios.post('https://audiobackend.onrender.com', formData);
     setBlob(null);
     setTitle('');
     setTimeLeft(MAX_DURATION);
