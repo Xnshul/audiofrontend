@@ -1,4 +1,4 @@
-
+// frontend/src/components/AudioList.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -6,7 +6,7 @@ const AudioList = () => {
   const [audios, setAudios] = useState([]);
 
   const fetchAudios = async () => {
-    const res = await axios.get(import.meta.env.VITE_URI);
+    const res = await axios.get('http://localhost:5000/api/audio');
     setAudios(res.data);
   };
 
@@ -20,7 +20,7 @@ const AudioList = () => {
       {audios.map(audio => (
         <div key={audio._id}>
           <strong>{audio.title}</strong>
-          <audio controls src={`http://localhost:5000/${audio.filePath}`} />
+          <audio controls src={`https://audiobackend.onrender.com${audio.filePath}`} />
         </div>
       ))}
     </div>
@@ -28,3 +28,5 @@ const AudioList = () => {
 };
 
 export default AudioList;
+
+
