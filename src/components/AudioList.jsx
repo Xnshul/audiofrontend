@@ -6,7 +6,7 @@ const AudioList = () => {
   const [audios, setAudios] = useState([]);
 
   const fetchAudios = async () => {
-    const res = await axios.get('http://localhost:5000/api/audio');
+    const res = await axios.get('https://audiobackend.onrender.com/api/audio');
     setAudios(res.data);
   };
 
