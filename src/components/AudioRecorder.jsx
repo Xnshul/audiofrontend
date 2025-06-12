@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
 const MAX_DURATION = 30;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 
 const AudioRecorder = ({ onUploadSuccess }) => {
   const [recording, setRecording] = useState(false);
@@ -55,10 +57,28 @@ const AudioRecorder = ({ onUploadSuccess }) => {
 
     recorder.ondataavailable = (e) => chunks.current.push(e.data);
 
-    recorder.onstop = () => {
-      const audioBlob = new Blob(chunks.current, { type: 'audio/webm' });
-      setBlob(audioBlob); // Save for manual submit
-    };
+    recorder.onstop = async () => {
+  const audioBlob = new Blob(chunks.current, { type: 'audio/webm' });
+  setBlob(audioBlob);
+
+  if (title.trim()) {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('audio', audioBlob, 'recording.webm');
+
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      await axios.post(`${API_BASE_URL}/api/audio`, formData);
+      
+     
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('❌ Upload failed. Please try again.');
+    }
+  } else {
+    alert("⚠️ Title is missing. Please set a title before starting.");
+  }
+};
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioCtx.createMediaStreamSource(stream);
@@ -83,14 +103,14 @@ const AudioRecorder = ({ onUploadSuccess }) => {
   };
 
   const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stop();
-      streamRef.current.getTracks().forEach((track) => track.stop());
-    }
-    setRecording(false);
-    setPaused(false);
-    clearInterval(timerRef.current);
-  };
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+    streamRef.current.getTracks().forEach((track) => track.stop());
+  }
+  setRecording(false);
+  setPaused(false);
+  clearInterval(timerRef.current);
+};
 
   const pauseRecording = () => {
     if (mediaRecorder?.state === 'recording') {
@@ -119,7 +139,6 @@ const AudioRecorder = ({ onUploadSuccess }) => {
   const cancelRecording = () => {
     stopRecording();
     setBlob(null);
-    setTimeLeft(MAX_DURATION);
     setTitle('');
   };
 
@@ -129,7 +148,7 @@ const AudioRecorder = ({ onUploadSuccess }) => {
     formData.append('title', title);
     formData.append('audio', blob, 'recording.webm');
 
-    await axios.post('https://audiobackend.onrender.com/api/audio', formData);
+    await axios.post(`${API_BASE_URL}/api/audio`, formData);
     setBlob(null);
     setTitle('');
     setTimeLeft(MAX_DURATION);
@@ -222,3 +241,4 @@ const AudioRecorder = ({ onUploadSuccess }) => {
 };
 
 export default AudioRecorder;
+
